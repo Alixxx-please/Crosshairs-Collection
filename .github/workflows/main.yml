@@ -1,7 +1,7 @@
-name: Zip and upload resource pack as an artifact
+name: Prepare and Upload Final Zip
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Permet de déclencher le workflow manuellement
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
           for texture_pack in */; do
             cd "$texture_pack"
             # Zipper le contenu du pack de textures directement
-            zip -r "${category%/}/${texture_pack%/}.zip" ./*
+            zip -r "../${texture_pack%/}.zip" ./*
             cd ..
             # Supprimer le dossier du pack de textures après zippage
             rm -rf "$texture_pack"
@@ -32,14 +32,29 @@ jobs:
           cd ..
         done
 
-    - name: Zip the entire structure
+    - name: Create Crosshairs Collection folder and move categories
       run: |
         cd $GITHUB_WORKSPACE
-        # Zipper le dossier Crosshairs Collection avec pack.mcmeta au même niveau
-        zip -r "Crosshairs Collection.zip" "Crosshairs Collection" pack.mcmeta
+        # Créer un dossier Crosshairs Collection
+        mkdir "Crosshairs Collection"
+        # Déplacer uniquement les dossiers de catégories dans le dossier Crosshairs Collection
+        for category in */; do
+          if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
+            mv "$category" "Crosshairs Collection/"
+          fi
+        done
 
-    - name: Upload the .zip as an artifact
+    - name: Zip the entire structure with the Crosshairs Collection folder
+      run: |
+        cd $GITHUB_WORKSPACE
+        # Créer le fichier zip final avec le dossier Crosshairs Collection
+        zip -r "Crosshairs Collection.zip" "Crosshairs Collection"
+        # Supprimer le dossier temporaire
+        rm -rf "Crosshairs Collection"
+
+    - name: Upload the final zip as an artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Extract this to get the resource pack
+        name: Crosshairs Collection
         path: "Crosshairs Collection.zip"
+        if-no-files-found: error
