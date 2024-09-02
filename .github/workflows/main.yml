@@ -1,7 +1,7 @@
-name: Prepare and Upload Final Zip
+name: Zip and upload resource pack as an artifact
 
 on:
-  workflow_dispatch: # Permet de déclencher le workflow manuellement
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,14 +16,14 @@ jobs:
 
     - name: Zip each texture pack
       run: |
-        cd $GITHUB_WORKSPACE
-        # Parcourir chaque dossier de catégorie à la racine
+        cd $GITHUB_WORKSPACE/Crosshairs Collection
+        # Parcourir chaque dossier de catégorie dans le dossier "Crosshairs Collection"
         for category in */; do
           cd "$category"
           # Parcourir chaque sous-dossier (qui est un pack de textures)
           for texture_pack in */; do
             cd "$texture_pack"
-            # Zipper le contenu du pack de textures directement
+            # Zipper le contenu du pack de textures directement (pack.mcmeta, pack.png, et le dossier assets)
             zip -r "../${texture_pack%/}.zip" ./*
             cd ..
             # Supprimer le dossier du pack de textures après zippage
@@ -32,29 +32,14 @@ jobs:
           cd ..
         done
 
-    - name: Create Crosshairs Collection folder and move categories
+    - name: Zip the entire structure
       run: |
         cd $GITHUB_WORKSPACE
-        # Créer un dossier Crosshairs Collection
-        mkdir "Crosshairs Collection"
-        # Déplacer uniquement les dossiers de catégories dans le dossier Crosshairs Collection
-        for category in */; do
-          if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
-            mv "$category" "Crosshairs Collection/"
-          fi
-        done
+        # Créer le fichier zip final en incluant le dossier "Crosshairs Collection" et le fichier pack.mcmeta
+        zip -r "Crosshairs Collection.zip" "Crosshairs Collection" "pack.mcmeta"
 
-    - name: Zip the entire structure with the Crosshairs Collection folder
-      run: |
-        cd $GITHUB_WORKSPACE
-        # Créer le fichier zip final avec le dossier Crosshairs Collection
-        zip -r "Crosshairs Collection.zip" "Crosshairs Collection"
-        # Supprimer le dossier temporaire
-        rm -rf "Crosshairs Collection"
-
-    - name: Upload the final zip as an artifact
+    - name: Upload the .zip as an artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Crosshairs Collection
+        name: Extract this to get the resource pack
         path: "Crosshairs Collection.zip"
-        if-no-files-found: error
