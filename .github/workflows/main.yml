@@ -1,0 +1,51 @@
+name: Zip and upload resource pack as an artifact
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up zip utility
+      run: sudo apt-get install -y zip unzip
+
+    - name: Zip each texture pack
+      run: |
+        cd $GITHUB_WORKSPACE
+        for category in */; do
+          cd "$category"
+          for texture_pack in */; do
+            cd "$texture_pack"
+            zip -r "../${texture_pack%/}.zip" ./*
+            cd ..
+            rm -rf "$texture_pack"
+          done
+          cd ..
+        done
+
+    - name: Create main folder and move categories into it
+      run: |
+        cd $GITHUB_WORKSPACE
+        mkdir "Crosshairs Collection"
+        for category in */; do
+          if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
+            mv "$category" "Crosshairs Collection/"
+          fi
+        done
+
+    - name: Zip the entire structure
+      run: |
+        cd $GITHUB_WORKSPACE
+        zip -r "Crosshairs Collection.zip" "Crosshairs Collection"
+        rm -rf "Crosshairs Collection"
+
+    - name: Upload the .zip as an artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Extract this to get the resource pack
+        path: "Crosshairs Collection.zip"
