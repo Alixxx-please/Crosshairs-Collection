@@ -16,27 +16,33 @@ jobs:
 
     - name: Zip each texture pack
       run: |
-        cd $GITHUB_WORKSPACE/Crosshairs Collection
-        # Parcourir chaque dossier de catégorie dans le dossier "Crosshairs Collection"
+        cd $GITHUB_WORKSPACE
         for category in */; do
           cd "$category"
-          # Parcourir chaque sous-dossier (qui est un pack de textures)
           for texture_pack in */; do
             cd "$texture_pack"
-            # Zipper le contenu du pack de textures directement (pack.mcmeta, pack.png, et le dossier assets)
             zip -r "../${texture_pack%/}.zip" ./*
             cd ..
-            # Supprimer le dossier du pack de textures après zippage
             rm -rf "$texture_pack"
           done
           cd ..
         done
 
+    - name: Create main folder and move categories into it
+      run: |
+        cd $GITHUB_WORKSPACE
+        mkdir "Crosshairs Collection"
+        for category in */; do
+          if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
+            mv "$category" "Crosshairs Collection/"
+          fi
+        done
+
     - name: Zip the entire structure
       run: |
         cd $GITHUB_WORKSPACE
-        # Créer le fichier zip final en incluant le dossier "Crosshairs Collection" et le fichier pack.mcmeta
-        zip -r "Crosshairs Collection.zip" "Crosshairs Collection" "pack.mcmeta"
+        zip -r "Crosshairs Collection.zip" "Crosshairs Collection"
+        rm -rf "Crosshairs Collection"
 
     - name: Upload the .zip as an artifact
       uses: actions/upload-artifact@v4
