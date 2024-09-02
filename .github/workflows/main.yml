@@ -28,15 +28,10 @@ jobs:
           cd ..
         done
 
-    - name: Create main folder and move categories into it
+    - name: Move pack.mcmeta to Crosshairs Collection folder
       run: |
         cd $GITHUB_WORKSPACE
-        mkdir "Crosshairs Collection"
-        for category in */; do
-          if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
-            mv "$category" "Crosshairs Collection/"
-          fi
-        done
+        mv pack.mcmeta "Crosshairs Collection/"
 
     - name: Zip the entire structure
       run: |
