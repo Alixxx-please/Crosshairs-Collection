@@ -31,7 +31,6 @@ jobs:
     - name: Create main folder and move categories into it
       run: |
         cd $GITHUB_WORKSPACE
-        mkdir "Crosshairs Collection"
         for category in */; do
           if [ "$category" != "Crosshairs Collection/" ] && [ "$category" != ".git/" ] && [ "$category" != ".github/" ]; then
             mv "$category" "Crosshairs Collection/"
