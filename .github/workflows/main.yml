@@ -28,16 +28,10 @@ jobs:
           cd ..
         done
 
-    - name: Move pack.mcmeta to Crosshairs Collection folder
-      run: |
-        cd $GITHUB_WORKSPACE
-        mv pack.mcmeta "Crosshairs Collection/"
-
     - name: Zip the entire structure
       run: |
         cd $GITHUB_WORKSPACE
-        zip -r "Crosshairs Collection.zip" "Crosshairs Collection"
-        rm -rf "Crosshairs Collection"
+        zip -r "Crosshairs Collection.zip" "Crosshairs Collection" pack.mcmeta
 
     - name: Upload the .zip as an artifact
       uses: actions/upload-artifact@v4
